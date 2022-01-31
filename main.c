@@ -5,7 +5,6 @@
 
 int main() {
     char *filename = "return2.c";
-    //reader();
-    //printf("%s", str);
+    lexer(reader(filename));
     return 0;
 }
