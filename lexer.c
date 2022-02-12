@@ -3,9 +3,6 @@
 #include <string.h>
 #include <ctype.h>
 #include "reader.h"
-void fail();
-void func();
-void ret(char[]);
 int isNumber(char[]);
 Token* lexer(char* file)
 {
@@ -75,15 +72,6 @@ Token* lexer(char* file)
 	//func();
 	//ret(pret[6]);
 	return tokens;
-}
-void fail() {
-	printf("fail");
-}
-void func() {
-	printf(".globl _main\n_main:\n");
-}
-void ret(char val[]) {
-	printf("movl $%s, %%eax\nret", val);
 }
 int isNumber(char s[])
 {

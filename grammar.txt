@@ -1,0 +1,4 @@
+<program> ::= <function> until EOF
+<function> ::= <DATA_TYPE> <IDENTIFIER> <OPEN_PAREN> <CLOSE_PAREN> <OPEN_BRACKET> <statement> <CLOSE_BRACKET>
+<statement> ::= <RETURN> <exp> ";"
+<exp> ::= <INT_LITERAL>
