@@ -25,20 +25,23 @@ Token* lexer(char* file)
 		}
 	}
 	char delim[] = " \n\t\r";
-	char* pre;
-	char pret[100][80];
+	char *pre;
+	char pret[100][100];
 	pre = strtok(str, delim);
 	int counter = 0;
 	while (pre != NULL) {
 		strcpy(pret[counter], pre);
+		//printf("%s\n", pret[counter]);
 		pre = strtok(NULL, delim);
 		counter++;
 	}
-	strcpy(pret[counter++], "\0");
-	Token* tokens = malloc(counter * sizeof(*tokens));
-	i = 0;
-	while (pret[i][0] != '\0') {
-		strncpy(tokens[i].data, pret[i], strlen(pret[i]));
+
+	Token* tokens = malloc(counter * sizeof *tokens);
+
+	for (i = 0; i < counter; i++) {
+		tokens[i].data = (char*)malloc(sizeof(char*));
+		tokens[i].keyword = (char*)malloc(sizeof(char*));
+		strcpy(tokens[i].data, pret[i]);
 		if (strcmp(pret[i], "{") == 0) {
 			strcpy(tokens[i].keyword, "OPEN_BRACKET");
 		}
@@ -66,11 +69,9 @@ Token* lexer(char* file)
 		else {
 			strcpy(tokens[i].keyword, "IDENTIFIER");
 		}
-		printf("%s\t%s\t%s\n", pret[i], tokens[i].data, tokens[i].keyword);
-		i++;
+		//printf("%d\t%s\t%s\t%s\n", i, pret[i], tokens[i].data, tokens[i].keyword);
 	}
-	//func();
-	//ret(pret[6]);
+	//printf("done lexing 1");
 	return tokens;
 }
 int isNumber(char s[])
