@@ -4,6 +4,7 @@ typedef struct Token {
 	char* data;
 } Token;
 typedef struct NodeData {
+	char* cate;
 	char* keyword;
 	char* data;
 } NodeData;

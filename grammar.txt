@@ -1,4 +1,5 @@
-<program> ::= <function> until EOF
+<program> ::= <function>
 <function> ::= <DATA_TYPE> <IDENTIFIER> <OPEN_PAREN> <CLOSE_PAREN> <OPEN_BRACKET> <statement> <CLOSE_BRACKET>
-<statement> ::= <RETURN> <exp> ";"
-<exp> ::= <INT_LITERAL>
+<statement> ::= <RETURN> <exp> | <DATA_TYPE> <IDENTIFIER> (optional <=> <exp>)
+<exp> ::= <INT_LITERAL> | <unary_op> <exp>
+<unary_op> ::= "!" | "~" | "-"

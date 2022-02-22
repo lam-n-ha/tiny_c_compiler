@@ -4,8 +4,10 @@
 #include "reader.h"
 #define lenns 5 //how many branch can a node have at most
 
-NodeData* newNodeData(char* k, char* d) {
+#define VALNUM 10
+NodeData* newNodeData(char* c, char* k, char* d) {
 	NodeData* nd = (NodeData*)malloc(sizeof(NodeData));
+	nd->cate = c;
 	nd->keyword = k;
 	nd->data = d;
 	return (nd);
@@ -39,24 +41,32 @@ node* parser(Token* tokens) {
 	//for (int j = 0; j < 9; j++) {
 		//printf("%s %s\n", tokens[j].keyword, tokens[j].data);
 	//}
-	//auto void printPreorder(node * node);
+	auto void printPreorder(node * node);
 	auto void func();
 	int tCounter = 0;
 	int fc = 0;
-	NodeData* t = newNodeData("PROGRAM", "");
+	NodeData* t = newNodeData("PROGRAM", "", "");
 	node* head = newNode(t);
 	//while (tokens[tCounter].keyword != NULL) {
 	func();
 	//}
-	//printPreorder(head);
+	node* f = head->child;
+	while (f) {
+		printf("%s %s %s\n", f->nd->cate, f->nd->keyword, f->nd->data);
+		printPreorder(f->child);
+		f = f->next;
+	}
 	return head;
 	void func() {
+		auto int declared(char* variable, int vcount);
 		auto void stat();
 		int sc = 0;
+		int vcount = 0;
+		char** variables = malloc(VALNUM * sizeof(char*));
 		if (strcmp(tokens[tCounter].keyword, "DATA_TYPE") != 0) fail(tCounter);
 		if (strcmp(tokens[++tCounter].keyword, "IDENTIFIER") != 0) fail(tCounter);
 		//add fuct node to head
-		NodeData* f = newNodeData("FUNCTION", tokens[tCounter].data);
+		NodeData* f = newNodeData("FUNCTION", "", tokens[tCounter].data);
 		//NodeData* f = malloc(sizeof(f));;
 		//strcpy(f->keyword, "FUNCTION");
 		//strcpy(f->data, tokens[tCounter].data);
@@ -73,38 +83,79 @@ node* parser(Token* tokens) {
 			stat();
 			tCounter++;
 		}
+		//printf("%s %s\n", variables[0], variables[1]);
 		fc++;
 		void stat() {
-			auto void expr();
+			auto void expr(node* n);
 			int ec = 0;
-			if (strcmp(tokens[tCounter].keyword, "RETURN") != 0) fail(tCounter);
+			//if (strcmp(tokens[tCounter].keyword, "RETURN") != 0) fail(tCounter);
 			//add statements to functions
-			NodeData* s = newNodeData("STATEMENT", tokens[tCounter].data);
-			//NodeData* s = malloc(sizeof(s));
-			//strcpy(s->keyword, "STATEMENT");
-			//strcpy(s->data, tokens[tCounter].data);
-			node* snode = addChild(fnode, s);
-			//head->ns[fc]->ns[sc] = newNode(s);
-			//printf("statement node created");
-			tCounter++;
-			while (strcmp(tokens[tCounter].keyword, "SEMI_COLON") != 0) {
-				expr();
+			node* snode;
+			NodeData* s;
+			if (strcmp(tokens[tCounter].keyword, "RETURN") == 0) {
+				s = newNodeData("STATEMENT", "RETURN", tokens[tCounter].data);
+				snode = addChild(fnode, s);
 				tCounter++;
+				while (strcmp(tokens[tCounter].keyword, "SEMI_COLON") != 0) {
+					expr(snode);
+				}
 			}
+			else if (strcmp(tokens[tCounter].keyword, "DATA_TYPE") == 0) {
+				s = newNodeData("STATEMENT", "DATA_TYPE", tokens[tCounter].data);
+				snode = addChild(fnode, s);
+				tCounter++;
+				s = newNodeData("STATEMENT", "IDENTIFIER", tokens[tCounter].data);
+				if (!declared(tokens[tCounter].data, vcount)) {
+					//strcpy(variables[vcount], tokens[tCounter].data);
+					variables[vcount] = malloc(sizeof(char*) * 50 * VALNUM);
+					strcpy(variables[vcount], tokens[tCounter].data);
+					vcount++;
+				}
+				addChild(snode, s);
+				tCounter++;
+				if (strcmp(tokens[tCounter].keyword, "=") == 0) {
+					if (strcmp(tokens[tCounter+1].keyword, "INT_LITERAL") && strcmp(tokens[tCounter + 1].keyword, "UNARY_OP")) fail(tCounter);
+					s = newNodeData("STATEMENT", "=", tokens[tCounter].data);
+					addChild(snode, s);
+					tCounter++;
+					while (strcmp(tokens[tCounter].keyword, "SEMI_COLON") != 0) {
+						expr(snode);
+					}
+				}
+				else if (strcmp(tokens[tCounter].keyword, ";") != 0) fail(tCounter);
+			}
+			//NodeData* s = newNodeData("STATEMENT", "", tokens[tCounter].data);
+			
+			//while (strcmp(tokens[tCounter].keyword, "SEMI_COLON") != 0) {
+				//expr(snode);
+			//}
 			sc++;
-			void expr() {
+			void expr(node* n) {
 				//printf("%s %s", tokens[tCounter].keyword, tokens[tCounter + 1].keyword);
-				if (strcmp(tokens[tCounter].keyword, "INT_LITERAL") != 0) fail(tCounter);
-				//add express
-				NodeData* e = newNodeData("EXPRESSION", tokens[tCounter].data);
-				//NodeData* e = malloc(sizeof(e));
-				//strcpy(e->keyword, "FUNCTION");
-				//strcpy(e->data, tokens[tCounter].data);
-				addChild(snode, e);
-				//head->ns[fc]->ns[sc]->ns[ec] = newNode(f);
-				//printf("expression node created");
-				ec++;
+				if (strcmp(tokens[tCounter].keyword, "UNARY_OP") == 0) {
+					NodeData* e = newNodeData("EXPRESSION", "UNARY_OP", tokens[tCounter].data);
+					//node* enode = newNode(e);
+					node* enode = addChild(n, e);
+					tCounter++;
+					expr(enode);
+				}
+				else {
+					if (strcmp(tokens[tCounter].keyword, "INT_LITERAL") != 0) fail(tCounter);
+					//add express
+					NodeData * e = newNodeData("EXPRESSION", "INT_LITERAL", tokens[tCounter].data);
+					addChild(n, e);
+					tCounter++;
+					ec++;
+				}
 			}
+		}
+		int declared(char* variable, int vcount) {
+			for (int i = 0; i < vcount; i++) {
+				if (strcmp(variable, variables[i]) == 0) {
+					return 1;
+				}
+			}
+			return 0;
 		}
 	}
 	void printPreorder(node* node) {
@@ -112,9 +163,10 @@ node* parser(Token* tokens) {
 			return;
 		while (node)
 		{
-			printf("%s %s\n", node->nd->keyword, node->nd->data);
 			if (node->child)
+				//printf("new node");
 				printPreorder(node->child);
+			printf("%s %s %s\n", node->nd->cate, node->nd->keyword, node->nd->data);
 			node = node->next;
 		}
 	}

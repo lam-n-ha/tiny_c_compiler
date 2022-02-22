@@ -11,7 +11,9 @@ Token* lexer(char* file)
 	int i = 0;
 	int j = 0;
 	while (i < 80) {
-		if ((s[i] != '(') && (s[i] != ')') && (s[i] != '{') && (s[i] != '}') && (s[i] != ';')) {
+		if ((s[i] != '(') && (s[i] != ')') && (s[i] != '{') 
+			&& (s[i] != '}') && (s[i] != ';') && (s[i] != '!')
+			&& (s[i] != '~') && (s[i] != '-')) {
 			str[j] = s[i];
 			i++;
 			j++;
@@ -63,13 +65,19 @@ Token* lexer(char* file)
 		else if (strcmp(pret[i], "return") == 0) {
 			strcpy(tokens[i].keyword, "RETURN");
 		}
+		else if (strcmp(pret[i], "!") == 0 || strcmp(pret[i], "~") == 0 || strcmp(pret[i], "-") == 0) {
+			strcpy(tokens[i].keyword, "UNARY_OP");
+		}
 		else if (isNumber(pret[i]) == 1) {
 			strcpy(tokens[i].keyword, "INT_LITERAL");
+		}
+		else if (strcmp(pret[i], "=") == 0) {
+			strcpy(tokens[i].keyword, "=");
 		}
 		else {
 			strcpy(tokens[i].keyword, "IDENTIFIER");
 		}
-		//printf("%d\t%s\t%s\t%s\n", i, pret[i], tokens[i].data, tokens[i].keyword);
+		printf("%d\t%s\t%s\t%s\n", i, pret[i], tokens[i].data, tokens[i].keyword);
 	}
 	//printf("done lexing 1");
 	return tokens;
